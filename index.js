@@ -124,6 +124,7 @@ const miscellaneous = document.querySelectorAll(".misc");
 miscellaneous.forEach((misc) => {
     misc.addEventListener("click", () => {
         if(misc.textContent == "AC") {
+            history.textContent = "";
             p.textContent = "0";
         }
         else if(misc.textContent == "C") {
