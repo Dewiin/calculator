@@ -14,9 +14,10 @@ const addToDisplay = (newContent) => {
 
 const getFormat = () => {
     const operators = ["÷", "×", "-", "+", "%"];
-    const symbol = operators.filter(op => p.textContent.includes(op));
-    const index = p.textContent.indexOf(symbol);
-
+    const text = (p.textContent[0] === "-") ? (p.textContent.substring(1)) : (p.textContent);
+    const symbol = operators.filter(op => text.includes(op));
+    const index = (p.textContent[0] === "-") ? (text.indexOf(symbol) + 1) : (text.indexOf(symbol));
+    
     if(index == 0) {
         return [];
     }
@@ -24,13 +25,16 @@ const getFormat = () => {
     const left = p.textContent.slice(0,index);
     const right = p.textContent.slice(index + 1);
 
-    return [left, symbol, right];
+    return [left, symbol[0], right];
 }
 
 const insertDecimal = () => {
     const format = getFormat();
 
-    if((!format[2].includes(".")) && 
+    if(format.length === 0 && !p.textContent.includes(".") && /\d/.test(p.textContent.slice(-1))) {
+        addToDisplay(".");
+    }
+    else if(format.length > 0 && (!format[2].includes(".")) && 
     (/\d/.test(p.textContent.slice(-1)))) {
         addToDisplay(".");
     }
@@ -38,7 +42,7 @@ const insertDecimal = () => {
 
 const calculate = (num1, num2, operator) => {
     let result;
-    switch(operator[0]) {
+    switch(operator) {
         case "%":
             result = num1%num2;
             return Math.round(result*1000)/1000;
@@ -59,17 +63,18 @@ const calculate = (num1, num2, operator) => {
 
 const checkOperators = (operator) => {
     const operators = ["÷", "×", "-", "+", "%"];
-    
+    const text = (p.textContent[0] === "-" ? (p.textContent.substring(1)) : (p.textContent));
+
     if(operator != "=") {
-        if((p.textContent.replace(".", "") != "") && 
-        (!operators.some(op => p.textContent.includes(op)))) {
+        if((text.replace(".", "") != "") && 
+        (!operators.some(op => text.includes(op)))) {
             addToDisplay(operator);
         }
     }
     else {
-        if((p.textContent.replace(".", "") != "") && 
-        (operators.some(op => p.textContent.includes(op))) && 
-        (operators.every(op => p.textContent.slice(-1) != op))) {
+        if((text.replace(".", "") != "") && 
+        (operators.some(op => text.includes(op))) && 
+        (operators.every(op => text.slice(-1) != op))) {
             history.textContent = p.textContent;
             
             const format = getFormat();
@@ -103,7 +108,6 @@ digits.forEach((digit) => {
         }
         else {
             const format = getFormat();
-            console.log(format);
 
             if((format.length == 0 && p.textContent == "0") || 
             (format.length > 0 && format[2] == "0")) {
